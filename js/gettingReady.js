@@ -26,12 +26,14 @@ function renderGettingReady(){
     }else if(v.maps){
       addressCell = `<a href="${escapeHtml(v.maps)}" target="_blank" rel="noopener noreferrer" style="color:var(--gold-deep);">פתיחה במפות</a>`;
     }
+    const linkCell = v.link ? `<a href="${escapeHtml(v.link)}" target="_blank" rel="noopener noreferrer" style="color:var(--gold-deep);">קישור</a>` : '—';
     tr.innerHTML = `
       <td data-label="שם העסק">${escapeHtml(v.name)}</td>
       <td data-label="איש קשר">${escapeHtml(v.contact||'—')}</td>
       <td data-label="טלפון">${phoneCell}</td>
       <td data-label="כתובת">${addressCell}</td>
       <td data-label="מחיר">${money(v.price)}</td>
+      <td data-label="מסמך מצורף">${linkCell}</td>
       <td data-label="הערות">${escapeHtml(v.notes||'—')}</td>
       <td data-label="" style="white-space:nowrap;">
         <button class="btn secondary" data-edit-gettingready="${v.id}" style="color:var(--gold-deep);border-color:var(--gold-deep);margin-left:6px;">עריכה</button>
@@ -63,7 +65,11 @@ function renderGettingReady(){
       document.getElementById('gr-price').value = v.price;
       document.getElementById('gr-address').value = v.address || '';
       document.getElementById('gr-maps').value = v.maps || '';
+      document.getElementById('gr-link').value = v.link || '';
       document.getElementById('gr-notes').value = v.notes || '';
+      setFieldValidity('gr-phone', 'gr-phone-error', true, '');
+      setFieldValidity('gr-maps', 'gr-maps-error', true, '');
+      setFieldValidity('gr-link', 'gr-link-error', true, '');
       document.getElementById('gettingReadyFormTitle').textContent = 'עריכת וילת התארגנות';
       document.getElementById('addGettingReadyBtn').textContent = 'עדכון וילה';
       document.getElementById('cancelGettingReadyEditBtn').style.display = 'inline-block';
@@ -86,12 +92,17 @@ document.getElementById('gr-maps').addEventListener('blur', ()=>{
   const v = document.getElementById('gr-maps').value.trim();
   setFieldValidity('gr-maps', 'gr-maps-error', isValidUrl(v), 'קישור לא תקין (חייב להתחיל ב-http:// או https://)');
 });
+document.getElementById('gr-link').addEventListener('blur', ()=>{
+  const v = document.getElementById('gr-link').value.trim();
+  setFieldValidity('gr-link', 'gr-link-error', isValidUrl(v), 'קישור לא תקין (חייב להתחיל ב-http:// או https://)');
+});
 
 function cancelGettingReadyEdit(){
   editingGettingReadyId = null;
-  ['gr-name','gr-contact','gr-phone','gr-price','gr-address','gr-maps','gr-notes'].forEach(id=>document.getElementById(id).value='');
+  ['gr-name','gr-contact','gr-phone','gr-price','gr-address','gr-maps','gr-link','gr-notes'].forEach(id=>document.getElementById(id).value='');
   setFieldValidity('gr-phone', 'gr-phone-error', true, '');
   setFieldValidity('gr-maps', 'gr-maps-error', true, '');
+  setFieldValidity('gr-link', 'gr-link-error', true, '');
   document.getElementById('gettingReadyFormTitle').textContent = 'הוספת וילת התארגנות';
   document.getElementById('addGettingReadyBtn').textContent = 'הוספת וילה';
   document.getElementById('cancelGettingReadyEditBtn').style.display = 'none';
@@ -106,11 +117,14 @@ document.getElementById('add-gettingready-form').addEventListener('submit', asyn
 
   const phone = document.getElementById('gr-phone').value.trim();
   const maps = document.getElementById('gr-maps').value.trim();
+  const link = document.getElementById('gr-link').value.trim();
   const phoneOk = isValidPhone(phone);
   const mapsOk = isValidUrl(maps);
+  const linkOk = isValidUrl(link);
   setFieldValidity('gr-phone', 'gr-phone-error', phoneOk, 'מספר טלפון לא תקין');
   setFieldValidity('gr-maps', 'gr-maps-error', mapsOk, 'קישור לא תקין (חייב להתחיל ב-http:// או https://)');
-  if(!phoneOk || !mapsOk){ showToast('נא לתקן את השדות המסומנים', 'warning'); return; }
+  setFieldValidity('gr-link', 'gr-link-error', linkOk, 'קישור לא תקין (חייב להתחיל ב-http:// או https://)');
+  if(!phoneOk || !mapsOk || !linkOk){ showToast('נא לתקן את השדות המסומנים', 'warning'); return; }
 
   const data = {
     name,
@@ -118,6 +132,7 @@ document.getElementById('add-gettingready-form').addEventListener('submit', asyn
     phone,
     address: document.getElementById('gr-address').value.trim(),
     maps,
+    link,
     price: Number(document.getElementById('gr-price').value) || 0,
     notes: document.getElementById('gr-notes').value.trim()
   };

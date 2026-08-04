@@ -23,11 +23,13 @@ function renderAttractions(){
   filtered.forEach(a => {
     const tr = document.createElement('tr');
     const phoneCell = a.phone ? `<a href="tel:${escapeHtml(a.phone)}" style="color:inherit;">${escapeHtml(a.phone)}</a>` : '—';
+    const linkCell = a.link ? `<a href="${escapeHtml(a.link)}" target="_blank" rel="noopener noreferrer" style="color:var(--gold-deep);">קישור</a>` : '—';
     tr.innerHTML = `
       <td data-label="שם">${escapeHtml(a.name)}</td>
       <td data-label="סוג">${escapeHtml(a.category)}</td>
       <td data-label="מחיר">${money(a.price)}</td>
       <td data-label="טלפון">${phoneCell}</td>
+      <td data-label="קישור">${linkCell}</td>
       <td data-label="הערות">${escapeHtml(a.notes||'—')}</td>
       <td data-label="" style="white-space:nowrap;">
         <button class="btn secondary" data-edit-attraction="${a.id}" style="color:var(--gold-deep);border-color:var(--gold-deep);margin-left:6px;">עריכה</button>
@@ -57,7 +59,10 @@ function renderAttractions(){
       document.getElementById('a-category').value = a.category;
       document.getElementById('a-price').value = a.price;
       document.getElementById('a-phone').value = a.phone || '';
+      document.getElementById('a-link').value = a.link || '';
       document.getElementById('a-notes').value = a.notes || '';
+      setFieldValidity('a-phone', 'a-phone-error', true, '');
+      setFieldValidity('a-link', 'a-link-error', true, '');
       document.getElementById('attractionFormTitle').textContent = 'עריכת אטרקציה';
       document.getElementById('addAttractionBtn').textContent = 'עדכון אטרקציה';
       document.getElementById('cancelAttractionEditBtn').style.display = 'inline-block';
@@ -80,12 +85,17 @@ document.getElementById('a-phone').addEventListener('blur', ()=>{
   const v = document.getElementById('a-phone').value.trim();
   setFieldValidity('a-phone', 'a-phone-error', isValidPhone(v), 'מספר טלפון לא תקין');
 });
+document.getElementById('a-link').addEventListener('blur', ()=>{
+  const v = document.getElementById('a-link').value.trim();
+  setFieldValidity('a-link', 'a-link-error', isValidUrl(v), 'קישור לא תקין (חייב להתחיל ב-http:// או https://)');
+});
 
 function cancelAttractionEdit(){
   editingAttractionId = null;
-  ['a-name','a-price','a-phone','a-notes'].forEach(id=>document.getElementById(id).value='');
+  ['a-name','a-price','a-phone','a-link','a-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('a-category').selectedIndex = 0;
   setFieldValidity('a-phone', 'a-phone-error', true, '');
+  setFieldValidity('a-link', 'a-link-error', true, '');
   document.getElementById('attractionFormTitle').textContent = 'הוספת אטרקציה';
   document.getElementById('addAttractionBtn').textContent = 'הוספת אטרקציה';
   document.getElementById('cancelAttractionEditBtn').style.display = 'none';
@@ -99,15 +109,19 @@ document.getElementById('add-attraction-form').addEventListener('submit', async 
   if(!name){ showToast('נא להזין שם אטרקציה', 'warning'); return; }
 
   const phone = document.getElementById('a-phone').value.trim();
+  const link = document.getElementById('a-link').value.trim();
   const phoneOk = isValidPhone(phone);
+  const linkOk = isValidUrl(link);
   setFieldValidity('a-phone', 'a-phone-error', phoneOk, 'מספר טלפון לא תקין');
-  if(!phoneOk){ showToast('נא לתקן את השדות המסומנים', 'warning'); return; }
+  setFieldValidity('a-link', 'a-link-error', linkOk, 'קישור לא תקין (חייב להתחיל ב-http:// או https://)');
+  if(!phoneOk || !linkOk){ showToast('נא לתקן את השדות המסומנים', 'warning'); return; }
 
   const data = {
     name,
     category: document.getElementById('a-category').value,
     price: Number(document.getElementById('a-price').value) || 0,
     phone,
+    link,
     notes: document.getElementById('a-notes').value.trim()
   };
 

@@ -37,6 +37,7 @@ function renderVendors(){
     const tr = document.createElement('tr');
     const phoneCell = v.phone ? `<a href="tel:${escapeHtml(v.phone)}" style="color:inherit;">${escapeHtml(v.phone)}</a>` : '—';
     const emailCell = v.email ? `<a href="mailto:${escapeHtml(v.email)}" style="color:inherit;">${escapeHtml(v.email)}</a>` : '—';
+    const linkCell = v.link ? `<a href="${escapeHtml(v.link)}" target="_blank" rel="noopener noreferrer" style="color:var(--gold-deep);">קישור</a>` : '—';
     tr.innerHTML = `
       <td data-label="ספק">${escapeHtml(v.name)}</td>
       <td data-label="קטגוריה">${escapeHtml(v.category)}</td>
@@ -47,6 +48,7 @@ function renderVendors(){
       <td data-label="עלות">${money(v.cost)}</td>
       <td data-label="שולם">${money(v.deposit)}</td>
       <td data-label="יתרה">${money(balance)}</td>
+      <td data-label="קישור">${linkCell}</td>
       <td data-label="הערות">${escapeHtml(v.notes||'—')}</td>
       <td data-label="" style="white-space:nowrap;">
         <button class="btn secondary" data-edit-vendor="${v.id}" style="color:var(--gold-deep);border-color:var(--gold-deep);margin-left:6px;">עריכה</button>
@@ -93,6 +95,10 @@ document.getElementById('v-email').addEventListener('blur', ()=>{
   const v = document.getElementById('v-email').value.trim();
   setFieldValidity('v-email', 'v-email-error', isValidEmail(v), 'כתובת מייל לא תקינה');
 });
+document.getElementById('v-link').addEventListener('blur', ()=>{
+  const v = document.getElementById('v-link').value.trim();
+  setFieldValidity('v-link', 'v-link-error', isValidUrl(v), 'קישור לא תקין (חייב להתחיל ב-http:// או https://)');
+});
 
 // ---- Edit mode + lazy legacy-deposit migration ----
 async function enterVendorEditMode(vendorId){
@@ -106,9 +112,11 @@ async function enterVendorEditMode(vendorId){
   document.getElementById('v-contact').value = v.contact || '';
   document.getElementById('v-phone').value = v.phone || '';
   document.getElementById('v-email').value = v.email || '';
+  document.getElementById('v-link').value = v.link || '';
   document.getElementById('v-notes').value = v.notes || '';
   setFieldValidity('v-phone', 'v-phone-error', true, '');
   setFieldValidity('v-email', 'v-email-error', true, '');
+  setFieldValidity('v-link', 'v-link-error', true, '');
   document.getElementById('vendorFormTitle').textContent = 'עריכת ספק';
   document.getElementById('addVendorBtn').textContent = 'עדכון ספק';
   document.getElementById('cancelVendorEditBtn').style.display = 'inline-block';
@@ -210,11 +218,12 @@ document.getElementById('add-payment-form').addEventListener('submit', async (e)
 
 function cancelVendorEdit(){
   editingVendorId = null;
-  ['v-name','v-cost','v-contact','v-phone','v-email','v-notes'].forEach(id=>document.getElementById(id).value='');
+  ['v-name','v-cost','v-contact','v-phone','v-email','v-link','v-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('v-category').selectedIndex = 0;
   document.getElementById('v-status').selectedIndex = 0;
   setFieldValidity('v-phone', 'v-phone-error', true, '');
   setFieldValidity('v-email', 'v-email-error', true, '');
+  setFieldValidity('v-link', 'v-link-error', true, '');
   document.getElementById('vendorFormTitle').textContent = 'הוספת ספק';
   document.getElementById('addVendorBtn').textContent = 'הוספת ספק';
   document.getElementById('cancelVendorEditBtn').style.display = 'none';
@@ -230,11 +239,14 @@ document.getElementById('add-vendor-form').addEventListener('submit', async (e)=
 
   const phone = document.getElementById('v-phone').value.trim();
   const email = document.getElementById('v-email').value.trim();
+  const link = document.getElementById('v-link').value.trim();
   const phoneOk = isValidPhone(phone);
   const emailOk = isValidEmail(email);
+  const linkOk = isValidUrl(link);
   setFieldValidity('v-phone', 'v-phone-error', phoneOk, 'מספר טלפון לא תקין');
   setFieldValidity('v-email', 'v-email-error', emailOk, 'כתובת מייל לא תקינה');
-  if(!phoneOk || !emailOk){ showToast('נא לתקן את השדות המסומנים', 'warning'); return; }
+  setFieldValidity('v-link', 'v-link-error', linkOk, 'קישור לא תקין (חייב להתחיל ב-http:// או https://)');
+  if(!phoneOk || !emailOk || !linkOk){ showToast('נא לתקן את השדות המסומנים', 'warning'); return; }
 
   const data = {
     name,
@@ -244,6 +256,7 @@ document.getElementById('add-vendor-form').addEventListener('submit', async (e)=
     contact: document.getElementById('v-contact').value.trim(),
     phone,
     email,
+    link,
     notes: document.getElementById('v-notes').value.trim()
   };
 
