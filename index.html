@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מאי וצח מתחתנים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Rubik:wght@300;400;500;600;700&family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">מתחתנים</div>
+    <h1 class="title">מאי רז<span class="amp">&amp;</span>צח שרביט</h1>
+    <div class="venue">אולם AMARE</div>
+    <div class="subdate">31 במרץ 2027</div>
+    <div class="countdown">
+      <span class="num" id="daysLeft">–</span>
+      <span class="label">ימים עד החתונה</span>
+    </div>
+    <svg class="pearls" viewBox="0 0 240 30" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 15 C 60 26, 180 26, 232 15" stroke="#C7A05F" stroke-width="1" fill="none" opacity="0.5"/>
+      <g fill="#FFFDF9" stroke="#E7D8BE" stroke-width="1">
+        <circle cx="20" cy="16.5" r="3.6"/>
+        <circle cx="45" cy="19.5" r="4.4"/>
+        <circle cx="72" cy="21.5" r="5"/>
+        <circle cx="102" cy="22.6" r="5.4"/>
+        <circle cx="120" cy="23" r="3" fill="#C7A05F" stroke="none"/>
+        <circle cx="138" cy="22.6" r="5.4"/>
+        <circle cx="168" cy="21.5" r="5"/>
+        <circle cx="195" cy="19.5" r="4.4"/>
+        <circle cx="220" cy="16.5" r="3.6"/>
+      </g>
+    </svg>
+    <svg class="lace-border" viewBox="0 0 640 16" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <pattern id="scallop" width="24" height="16" patternUnits="userSpaceOnUse">
+          <path d="M0 4 C 6 14, 18 14, 24 4" fill="none" stroke="#D9BE8E" stroke-width="1" opacity="0.55"/>
+          <circle cx="12" cy="11" r="1.3" fill="#C7A05F" opacity="0.6"/>
+        </pattern>
+      </defs>
+      <rect width="640" height="16" fill="url(#scallop)"/>
+    </svg>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="overview" class="active">סקירה כללית</button>
+    <button data-tab="guests">רשימת מוזמנים</button>
+    <button data-tab="attractions">אטרקציות</button>
+    <button data-tab="gettingready">וילות התארגנות</button>
+    <button data-tab="vendors">ספקים</button>
+    <button data-tab="budget">תקציב</button>
+    <button data-tab="tasks">משימות</button>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <section class="tab active" id="tab-overview">
+    <div class="stat-row">
+      <div class="stat-card"><div class="n" id="ov-guestsInvited">0</div><div class="l">מוזמנים סה״כ</div></div>
+      <div class="stat-card"><div class="n" id="ov-guestsConfirmed">0</div><div class="l">אישרו הגעה</div></div>
+      <div class="stat-card"><div class="n" id="ov-vendorsCount">0</div><div class="l">ספקים</div></div>
+      <div class="stat-card"><div class="n" id="ov-budgetPaid">₪0</div><div class="l">שולם עד כה</div></div>
+    </div>
+    <div class="card">
+      <h3>מה נשאר לעשות</h3>
+      <p id="ov-todo" style="font-size:14px;line-height:1.9;color:#5A5650;"></p>
+    </div>
+    <div class="card">
+      <h3>גיבוי ושחזור</h3>
+      <p style="font-size:13.5px;color:#8A8378;margin-top:0;">
+        המידע נשמר רק בדפדפן הזה. מומלץ להוריד גיבוי אחרי כל עדכון משמעותי —
+        כך שאם תפתחי גרסה חדשה של האתר, או תעברי למכשיר אחר, תוכלי לשחזר הכל בלחיצה אחת.
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <button class="btn" id="exportBackupBtn">הורדת גיבוי</button>
+        <label class="btn secondary" style="border-color:var(--gold-deep);color:var(--gold-deep);cursor:pointer;">
+          שחזור מגיבוי
+          <input type="file" id="restoreFile" accept=".json" style="display:none;">
+        </label>
+      </div>
+      <div id="backupMsg" style="font-size:13px;"></div>
+    </div>
+  </section>
+
+  <!-- GUESTS -->
+  <section class="tab" id="tab-guests">
+    <div class="card">
+      <h3>ייבוא מקובץ אקסל</h3>
+      <p style="font-size:13.5px;color:#8A8378;margin-top:0;">
+        בחרי קובץ אקסל (xlsx/xls/csv). מומלץ שבשורה הראשונה יהיו כותרות עמודה — למשל
+        <b>שם</b>, <b>צד</b>, <b>כמות</b>, <b>סטטוס</b>, <b>שולחן</b> (או באנגלית name/side/count/status/table).
+        עמודות שלא מזוהות פשוט יתעלמו מהן, ואפשר תמיד לערוך ידנית אחר כך.
+      </p>
+      <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="margin-bottom:10px;">
+      <div id="importMsg" style="font-size:13px;margin-bottom:8px;"></div>
+      <button class="btn" id="importBtn">ייבוא מוזמנים</button>
+    </div>
+    <div class="card">
+      <h3>הוספת מוזמן</h3>
+      <form id="add-guest-form" novalidate>
+        <div class="form-grid">
+          <div><label for="g-name">שם</label><input id="g-name" placeholder="שם מלא"></div>
+          <div><label for="g-side">צד</label>
+            <select id="g-side">
+              <option value="כלה">משפחת/חברי הכלה</option>
+              <option value="חתן">משפחת/חברי החתן</option>
+              <option value="משותף">משותפים</option>
+            </select>
+          </div>
+          <div><label for="g-count">מספר אורחים</label><input id="g-count" type="number" min="1" value="1"></div>
+          <div><label for="g-status">סטטוס</label>
+            <select id="g-status">
+              <option value="pending">ממתין לתשובה</option>
+              <option value="confirmed">אישר הגעה</option>
+              <option value="declined">לא מגיע</option>
+            </select>
+          </div>
+          <div><label for="g-table">שולחן</label><input id="g-table" placeholder="למשל 12"></div>
+          <div>
+            <label for="g-phone">טלפון</label>
+            <input id="g-phone" type="tel" placeholder="050-1234567" dir="ltr" style="text-align:right;" aria-describedby="g-phone-error">
+            <div class="field-error" id="g-phone-error" aria-live="polite"></div>
+          </div>
+          <div>
+            <label for="g-email">מייל</label>
+            <input id="g-email" type="email" placeholder="name@example.com" dir="ltr" style="text-align:right;" aria-describedby="g-email-error">
+            <div class="field-error" id="g-email-error" aria-live="polite"></div>
+          </div>
+        </div>
+        <button class="btn" id="addGuestBtn" type="submit">הוספה לרשימה</button>
+      </form>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+        <h3 style="margin:0;">המוזמנים שלי</h3>
+        <button class="btn secondary" id="exportGuestsBtn" style="color:var(--gold-deep);border-color:var(--gold-deep);">ייצוא לאקסל</button>
+      </div>
+      <div class="toolbar">
+        <input type="search" id="g-search" placeholder="חיפוש לפי שם, טלפון או מייל...">
+        <select id="g-filter-side">
+          <option value="all">כל הצדדים</option>
+          <option value="כלה">משפחת/חברי הכלה</option>
+          <option value="חתן">משפחת/חברי החתן</option>
+          <option value="משותף">משותפים</option>
+        </select>
+        <select id="g-filter-status">
+          <option value="all">כל הסטטוסים</option>
+          <option value="pending">ממתין לתשובה</option>
+          <option value="confirmed">אישר הגעה</option>
+          <option value="declined">לא מגיע</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table id="guestsTable">
+          <thead><tr><th>שם</th><th>צד</th><th>אורחים</th><th>סטטוס</th><th>שולחן</th><th>טלפון</th><th>מייל</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="empty" id="guestsEmpty" style="display:none;">עדיין לא הוספת מוזמנים. תתחילי למעלה 🤍</div>
+      <div class="empty" id="guestsNoMatch" style="display:none;">אין מוזמנים שתואמים לחיפוש/סינון.</div>
+    </div>
+  </section>
+
+  <!-- ATTRACTIONS -->
+  <section class="tab" id="tab-attractions">
+    <div class="card">
+      <h3 id="attractionFormTitle">הוספת אטרקציה</h3>
+      <form id="add-attraction-form" novalidate>
+        <div class="form-grid">
+          <div><label for="a-name">שם האטרקציה</label><input id="a-name" placeholder="למשל: פינת קפה"></div>
+          <div><label for="a-category">סוג</label>
+            <select id="a-category">
+              <option>מוזיקה / DJ</option>
+              <option>קוסם / להטוטן</option>
+              <option>פינת קפה / בר</option>
+              <option>מיצג אש / להבות</option>
+              <option>צלם רחוב / פיוטו-בות</option>
+              <option>אטרקציית ילדים</option>
+              <option>השכרת ציוד</option>
+              <option>אחר</option>
+            </select>
+          </div>
+          <div><label for="a-price">מחיר (₪)</label><input id="a-price" type="number" min="0" placeholder="0"></div>
+          <div>
+            <label for="a-phone">טלפון</label>
+            <input id="a-phone" type="tel" placeholder="050-1234567" dir="ltr" style="text-align:right;" aria-describedby="a-phone-error">
+            <div class="field-error" id="a-phone-error" aria-live="polite"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;"><label for="a-notes">הערות</label><input id="a-notes" placeholder="פרטים נוספים, קישור, זמינות וכו׳"></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn" id="addAttractionBtn" type="submit">הוספת אטרקציה</button>
+          <button class="btn secondary" id="cancelAttractionEditBtn" type="button" style="display:none;">ביטול עריכה</button>
+        </div>
+      </form>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 14px;">האטרקציות שלי</h3>
+      <div class="toolbar">
+        <input type="search" id="a-search" placeholder="חיפוש לפי שם, סוג או הערות...">
+        <select id="a-filter-category">
+          <option value="all">כל הסוגים</option>
+          <option>מוזיקה / DJ</option>
+          <option>קוסם / להטוטן</option>
+          <option>פינת קפה / בר</option>
+          <option>מיצג אש / להבות</option>
+          <option>צלם רחוב / פיוטו-בות</option>
+          <option>אטרקציית ילדים</option>
+          <option>השכרת ציוד</option>
+          <option>אחר</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table id="attractionsTable">
+          <thead><tr><th>שם</th><th>סוג</th><th>מחיר</th><th>טלפון</th><th>הערות</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="empty" id="attractionsEmpty" style="display:none;">עדיין לא הוספת אטרקציות.</div>
+      <div class="empty" id="attractionsNoMatch" style="display:none;">אין אטרקציות שתואמות לחיפוש/סינון.</div>
+    </div>
+  </section>
+
+  <!-- GETTING READY VILLAS -->
+  <section class="tab" id="tab-gettingready">
+    <div class="card">
+      <h3 id="gettingReadyFormTitle">הוספת וילת התארגנות</h3>
+      <form id="add-gettingready-form" novalidate>
+        <div class="form-grid">
+          <div><label for="gr-name">שם העסק</label><input id="gr-name" placeholder="למשל: וילת האגם"></div>
+          <div><label for="gr-contact">איש קשר</label><input id="gr-contact" placeholder="שם איש/אשת קשר"></div>
+          <div>
+            <label for="gr-phone">טלפון</label>
+            <input id="gr-phone" type="tel" placeholder="050-1234567" dir="ltr" style="text-align:right;" aria-describedby="gr-phone-error">
+            <div class="field-error" id="gr-phone-error" aria-live="polite"></div>
+          </div>
+          <div><label for="gr-price">מחיר (₪)</label><input id="gr-price" type="number" min="0" placeholder="0"></div>
+          <div><label for="gr-address">כתובת</label><input id="gr-address" placeholder="עיר, רחוב ומספר"></div>
+          <div>
+            <label for="gr-maps">קישור למפות</label>
+            <input id="gr-maps" type="url" placeholder="https://maps.google.com/..." dir="ltr" style="text-align:right;" aria-describedby="gr-maps-error">
+            <div class="field-error" id="gr-maps-error" aria-live="polite"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;"><label for="gr-notes">הערות</label><input id="gr-notes" placeholder="פרטים נוספים, שעות כניסה וכו׳"></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn" id="addGettingReadyBtn" type="submit">הוספת וילה</button>
+          <button class="btn secondary" id="cancelGettingReadyEditBtn" type="button" style="display:none;">ביטול עריכה</button>
+        </div>
+      </form>
+    </div>
+    <div class="card">
+      <h3 style="margin:0 0 14px;">הווילות שלי</h3>
+      <div class="toolbar">
+        <input type="search" id="gr-search" placeholder="חיפוש לפי שם, איש קשר, כתובת או הערות...">
+      </div>
+      <div class="table-wrap">
+        <table id="gettingReadyTable">
+          <thead><tr><th>שם העסק</th><th>איש קשר</th><th>טלפון</th><th>כתובת</th><th>מחיר</th><th>הערות</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="empty" id="gettingReadyEmpty" style="display:none;">עדיין לא הוספת וילות התארגנות.</div>
+      <div class="empty" id="gettingReadyNoMatch" style="display:none;">אין וילות שתואמות לחיפוש.</div>
+    </div>
+  </section>
+
+  <!-- VENDORS -->
+  <section class="tab" id="tab-vendors">
+    <div class="card">
+      <h3 id="vendorFormTitle">הוספת ספק</h3>
+      <form id="add-vendor-form" novalidate>
+        <div class="form-grid">
+          <div><label for="v-name">שם הספק</label><input id="v-name" placeholder="למשל: אולמי הגן"></div>
+          <div><label for="v-category">קטגוריה</label>
+            <select id="v-category">
+              <option>אולם</option>
+              <option>קייטרינג</option>
+              <option>צילום</option>
+              <option>מוזיקה / DJ</option>
+              <option>איפור ושיער</option>
+              <option>שמלה / חליפה</option>
+              <option>פרחים ועיצוב</option>
+              <option>הסעות</option>
+              <option>הזמנות</option>
+              <option>אחר</option>
+            </select>
+          </div>
+          <div><label for="v-status">סטטוס</label>
+            <select id="v-status">
+              <option value="booked">סגור</option>
+              <option value="pending">בתהליך</option>
+              <option value="cancelled">בוטל</option>
+            </select>
+          </div>
+          <div><label for="v-cost">עלות כוללת (₪)</label><input id="v-cost" type="number" min="0" placeholder="0"></div>
+          <div><label for="v-contact">איש קשר</label><input id="v-contact" placeholder="שם איש/אשת קשר"></div>
+          <div>
+            <label for="v-phone">טלפון</label>
+            <input id="v-phone" type="tel" placeholder="050-1234567" dir="ltr" style="text-align:right;" aria-describedby="v-phone-error">
+            <div class="field-error" id="v-phone-error" aria-live="polite"></div>
+          </div>
+          <div>
+            <label for="v-email">מייל</label>
+            <input id="v-email" type="email" placeholder="name@example.com" dir="ltr" style="text-align:right;" aria-describedby="v-email-error">
+            <div class="field-error" id="v-email-error" aria-live="polite"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px;"><label for="v-notes">הערות</label><input id="v-notes" placeholder="פרטים נוספים"></div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn" id="addVendorBtn" type="submit">הוספת ספק</button>
+          <button class="btn secondary" id="cancelVendorEditBtn" type="button" style="display:none;">ביטול עריכה</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card" id="vendorPaymentsSection" style="display:none;">
+      <h3 style="margin:0 0 4px;">לוח תשלומים — <span id="vendorPaymentsForName"></span></h3>
+      <p id="vendorPaymentsSummary" style="font-size:13.5px;color:#8A8378;margin:0 0 14px;"></p>
+      <div id="vendorPaymentsList"></div>
+      <div class="empty" id="vendorPaymentsEmpty" style="display:none;padding:14px 10px;">אין עדיין תשלומים רשומים.</div>
+      <form id="add-payment-form" novalidate style="margin-top:14px;border-top:1px solid var(--ivory-deep);padding-top:14px;">
+        <div class="form-grid">
+          <div><label for="vp-amount">סכום (₪)</label><input id="vp-amount" type="number" min="0" placeholder="0"></div>
+          <div><label for="vp-date">תאריך</label><input id="vp-date" type="date"></div>
+          <div><label for="vp-note">הערה</label><input id="vp-note" placeholder="למשל: תשלום שני"></div>
+          <div style="display:flex;align-items:flex-end;gap:6px;padding-bottom:9px;">
+            <input type="checkbox" id="vp-paid" checked style="width:19px;height:19px;flex:none;accent-color:var(--blush-deep);">
+            <label for="vp-paid" style="margin:0;">שולם</label>
+          </div>
+        </div>
+        <button class="btn" id="addPaymentBtn" type="submit">הוספת תשלום</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>הספקים שלי</h3>
+      <div class="toolbar">
+        <input type="search" id="v-search" placeholder="חיפוש לפי שם, איש קשר, טלפון, מייל או הערה...">
+        <select id="v-filter-category">
+          <option value="all">כל הקטגוריות</option>
+          <option>אולם</option>
+          <option>קייטרינג</option>
+          <option>צילום</option>
+          <option>מוזיקה / DJ</option>
+          <option>איפור ושיער</option>
+          <option>שמלה / חליפה</option>
+          <option>פרחים ועיצוב</option>
+          <option>הסעות</option>
+          <option>הזמנות</option>
+          <option>אחר</option>
+        </select>
+        <select id="v-filter-status">
+          <option value="all">כל הסטטוסים</option>
+          <option value="booked">סגור</option>
+          <option value="pending">בתהליך</option>
+          <option value="cancelled">בוטל</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table id="vendorsTable">
+          <thead><tr><th>ספק</th><th>קטגוריה</th><th>איש קשר</th><th>טלפון</th><th>מייל</th><th>סטטוס</th><th>עלות</th><th>שולם</th><th>יתרה</th><th>הערות</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="empty" id="vendorsEmpty" style="display:none;">עדיין לא הוספת ספקים.</div>
+      <div class="empty" id="vendorsNoMatch" style="display:none;">אין ספקים שתואמים לחיפוש/סינון.</div>
+    </div>
+  </section>
+
+  <!-- BUDGET -->
+  <section class="tab" id="tab-budget">
+    <div class="stat-row">
+      <div class="stat-card"><div class="n" id="b-total">₪0</div><div class="l">עלות כוללת (ספקים, אטרקציות ווילות)</div></div>
+      <div class="stat-card"><div class="n" id="b-paid">₪0</div><div class="l">שולם</div></div>
+      <div class="stat-card"><div class="n" id="b-left">₪0</div><div class="l">נותר לשלם</div></div>
+    </div>
+
+    <div class="card">
+      <h3>יעד תקציב</h3>
+      <form id="budget-target-form" novalidate>
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;">
+          <div style="flex:1 1 200px;">
+            <label for="b-target">יעד תקציב כולל (₪)</label>
+            <input id="b-target" type="number" min="0" placeholder="למשל: 150000">
+          </div>
+          <button class="btn" id="saveBudgetTargetBtn" type="submit">שמירת יעד</button>
+        </div>
+      </form>
+      <div class="bar-bg" style="margin-bottom:8px;"><div class="bar-fill" id="b-target-bar" style="width:0%;"></div></div>
+      <div id="b-target-status" style="font-size:13.5px;"></div>
+    </div>
+
+    <div class="card">
+      <h3>פילוח לפי סוג</h3>
+      <div class="stat-row">
+        <div class="stat-card"><div class="n" id="b-vendorsTotal">₪0</div><div class="l">ספקים</div></div>
+        <div class="stat-card"><div class="n" id="b-attractionsTotal">₪0</div><div class="l">אטרקציות</div></div>
+        <div class="stat-card"><div class="n" id="b-gettingReadyTotal">₪0</div><div class="l">וילות התארגנות</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>עלות ממוצעת לאדם</h3>
+      <div class="stat-row">
+        <div class="stat-card"><div class="n" id="b-perInvited">₪0</div><div class="l">לפי כלל המוזמנים</div></div>
+        <div class="stat-card"><div class="n" id="b-perConfirmed">₪0</div><div class="l">לפי מי שאישר הגעה</div></div>
+      </div>
+      <p style="font-size:12.5px;color:#8A8378;margin:0;">
+        החישוב הוא העלות הכוללת (ספקים, אטרקציות ווילות התארגנות), חלקי מספר האנשים ברשימת המוזמנים (בעמודת "אורחים").
+        ככל שיותר אנשים יאשרו הגעה, המספר השני יתעדכן ויהיה מדויק יותר.
+      </p>
+    </div>
+    <div class="card">
+      <h3>פילוח לפי קטגוריה</h3>
+      <div id="budgetBars"></div>
+      <div class="empty" id="budgetEmpty" style="display:none;">הוסיפי ספקים, אטרקציות או וילות התארגנות כדי לראות פילוח תקציב.</div>
+    </div>
+  </section>
+
+  <!-- TASKS -->
+  <section class="tab" id="tab-tasks">
+    <div class="card">
+      <h3>הוספת משימה</h3>
+      <form id="add-task-form" novalidate>
+        <div class="form-grid">
+          <div style="grid-column:1/-1;"><label for="task-text">משימה</label><input id="task-text" placeholder="למשל: לתאם טעימות עם הקייטרינג"></div>
+          <div><label for="task-priority">עדיפות</label>
+            <select id="task-priority">
+              <option value="low">נמוכה</option>
+              <option value="medium" selected>בינונית</option>
+              <option value="high">גבוהה</option>
+            </select>
+          </div>
+          <div><label for="task-category">קטגוריה</label>
+            <select id="task-category">
+              <option value="">ללא קטגוריה</option>
+              <option>אולם</option>
+              <option>קייטרינג</option>
+              <option>צילום</option>
+              <option>מוזיקה / DJ</option>
+              <option>איפור ושיער</option>
+              <option>שמלה / חליפה</option>
+              <option>פרחים ועיצוב</option>
+              <option>הסעות</option>
+              <option>הזמנות</option>
+              <option>מנהלה</option>
+              <option>אחר</option>
+            </select>
+          </div>
+          <div><label for="task-due">תאריך יעד</label><input id="task-due" type="date"></div>
+          <div><label for="task-reminder">תזכורת</label><input id="task-reminder" type="date"></div>
+        </div>
+        <button class="btn" id="addTaskBtn" type="submit">הוספה</button>
+        <p style="font-size:11.5px;color:#A39C90;margin:8px 0 0;">
+          תזכורת נשמרת לעת עתה כתאריך בלבד — התראות אוטומטיות יתווספו בעדכון עתידי.
+        </p>
+      </form>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h3 style="margin:0;">המשימות שלי</h3>
+        <span style="font-size:13px;color:#8A8378;" id="tasksProgress"></span>
+      </div>
+      <div class="bar-bg" style="margin-bottom:16px;"><div class="bar-fill" id="tasksProgressBar" style="width:0%;"></div></div>
+      <div id="tasksList"></div>
+      <div class="empty" id="tasksEmpty" style="display:none;">אין עדיין משימות. הוסיפי אחת למעלה 🤍</div>
+    </div>
+  </section>
+
+  <footer>נשמר אוטומטית בדפדפן הזה — המידע נשאר על המכשיר שבו פתחת את הקובץ 🤍</footer>
+</div>
+
+<div class="toast-stack" id="toastContainer" aria-live="polite"></div>
+
+<div class="modal-overlay" id="confirmModal" hidden>
+  <div class="modal-box" role="alertdialog" aria-modal="true" aria-describedby="confirmModalMsg">
+    <p id="confirmModalMsg"></p>
+    <div class="modal-actions">
+      <button class="btn secondary" id="confirmModalCancel">ביטול</button>
+      <button class="btn" id="confirmModalOk" style="background:var(--danger);">אישור</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/ui/toast.js"></script>
+<script src="js/ui/confirmModal.js"></script>
+<script src="js/data/localStorageAdapter.js"></script>
+<script src="js/data/repository.js"></script>
+<script src="js/overview.js"></script>
+<script src="js/guests.js"></script>
+<script src="js/attractions.js"></script>
+<script src="js/gettingReady.js"></script>
+<script src="js/vendors.js"></script>
+<script src="js/budget.js"></script>
+<script src="js/tasks.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
