@@ -189,8 +189,13 @@
             <input id="a-phone" type="tel" placeholder="050-1234567" dir="ltr" style="text-align:right;" aria-describedby="a-phone-error">
             <div class="field-error" id="a-phone-error" aria-live="polite"></div>
           </div>
+          <div>
+            <label for="a-link">קישור למסמך מצורף</label>
+            <input id="a-link" type="url" placeholder="https://..." dir="ltr" style="text-align:right;" aria-describedby="a-link-error">
+            <div class="field-error" id="a-link-error" aria-live="polite"></div>
+          </div>
         </div>
-        <div style="margin-bottom:12px;"><label for="a-notes">הערות</label><input id="a-notes" placeholder="פרטים נוספים, קישור, זמינות וכו׳"></div>
+        <div style="margin-bottom:12px;"><label for="a-notes">הערות</label><input id="a-notes" placeholder="פרטים נוספים, זמינות וכו׳"></div>
         <div style="display:flex;gap:10px;">
           <button class="btn" id="addAttractionBtn" type="submit">הוספת אטרקציה</button>
           <button class="btn secondary" id="cancelAttractionEditBtn" type="button" style="display:none;">ביטול עריכה</button>
@@ -215,7 +220,7 @@
       </div>
       <div class="table-wrap">
         <table id="attractionsTable">
-          <thead><tr><th>שם</th><th>סוג</th><th>מחיר</th><th>טלפון</th><th>הערות</th><th></th></tr></thead>
+          <thead><tr><th>שם</th><th>סוג</th><th>מחיר</th><th>טלפון</th><th>קישור</th><th>הערות</th><th></th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -244,6 +249,11 @@
             <input id="gr-maps" type="url" placeholder="https://maps.google.com/..." dir="ltr" style="text-align:right;" aria-describedby="gr-maps-error">
             <div class="field-error" id="gr-maps-error" aria-live="polite"></div>
           </div>
+          <div>
+            <label for="gr-link">קישור למסמך מצורף</label>
+            <input id="gr-link" type="url" placeholder="https://..." dir="ltr" style="text-align:right;" aria-describedby="gr-link-error">
+            <div class="field-error" id="gr-link-error" aria-live="polite"></div>
+          </div>
         </div>
         <div style="margin-bottom:12px;"><label for="gr-notes">הערות</label><input id="gr-notes" placeholder="פרטים נוספים, שעות כניסה וכו׳"></div>
         <div style="display:flex;gap:10px;">
@@ -259,7 +269,7 @@
       </div>
       <div class="table-wrap">
         <table id="gettingReadyTable">
-          <thead><tr><th>שם העסק</th><th>איש קשר</th><th>טלפון</th><th>כתובת</th><th>מחיר</th><th>הערות</th><th></th></tr></thead>
+          <thead><tr><th>שם העסק</th><th>איש קשר</th><th>טלפון</th><th>כתובת</th><th>מחיר</th><th>מסמך מצורף</th><th>הערות</th><th></th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -307,6 +317,11 @@
             <label for="v-email">מייל</label>
             <input id="v-email" type="email" placeholder="name@example.com" dir="ltr" style="text-align:right;" aria-describedby="v-email-error">
             <div class="field-error" id="v-email-error" aria-live="polite"></div>
+          </div>
+          <div>
+            <label for="v-link">קישור למסמך מצורף</label>
+            <input id="v-link" type="url" placeholder="https://..." dir="ltr" style="text-align:right;" aria-describedby="v-link-error">
+            <div class="field-error" id="v-link-error" aria-live="polite"></div>
           </div>
         </div>
         <div style="margin-bottom:12px;"><label for="v-notes">הערות</label><input id="v-notes" placeholder="פרטים נוספים"></div>
@@ -362,7 +377,7 @@
       </div>
       <div class="table-wrap">
         <table id="vendorsTable">
-          <thead><tr><th>ספק</th><th>קטגוריה</th><th>איש קשר</th><th>טלפון</th><th>מייל</th><th>סטטוס</th><th>עלות</th><th>שולם</th><th>יתרה</th><th>הערות</th><th></th></tr></thead>
+          <thead><tr><th>ספק</th><th>קטגוריה</th><th>איש קשר</th><th>טלפון</th><th>מייל</th><th>סטטוס</th><th>עלות</th><th>שולם</th><th>יתרה</th><th>קישור</th><th>הערות</th><th></th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
