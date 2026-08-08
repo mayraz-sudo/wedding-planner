@@ -99,7 +99,7 @@
       <button class="btn" id="importBtn">ייבוא מוזמנים</button>
     </div>
     <div class="card">
-      <h3>הוספת מוזמן</h3>
+      <h3 id="guestFormTitle">הוספת מוזמן</h3>
       <form id="add-guest-form" novalidate>
         <div class="form-grid">
           <div><label for="g-name">שם</label><input id="g-name" placeholder="שם מלא"></div>
@@ -116,6 +116,7 @@
               <option value="pending">ממתין לתשובה</option>
               <option value="confirmed">אישר הגעה</option>
               <option value="declined">לא מגיע</option>
+              <option value="unknown">לא ידוע</option>
             </select>
           </div>
           <div><label for="g-table">שולחן</label><input id="g-table" placeholder="למשל 12"></div>
@@ -129,8 +130,12 @@
             <input id="g-email" type="email" placeholder="name@example.com" dir="ltr" style="text-align:right;" aria-describedby="g-email-error">
             <div class="field-error" id="g-email-error" aria-live="polite"></div>
           </div>
+          <div><label for="g-gift">צפי מתנה (₪)</label><input id="g-gift" type="number" min="0" placeholder="0"></div>
         </div>
-        <button class="btn" id="addGuestBtn" type="submit">הוספה לרשימה</button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn" id="addGuestBtn" type="submit">הוספה לרשימה</button>
+          <button class="btn secondary" id="cancelGuestEditBtn" type="button" style="display:none;">ביטול עריכה</button>
+        </div>
       </form>
     </div>
     <div class="card">
@@ -151,11 +156,12 @@
           <option value="pending">ממתין לתשובה</option>
           <option value="confirmed">אישר הגעה</option>
           <option value="declined">לא מגיע</option>
+          <option value="unknown">לא ידוע</option>
         </select>
       </div>
       <div class="table-wrap">
         <table id="guestsTable">
-          <thead><tr><th>שם</th><th>צד</th><th>אורחים</th><th>סטטוס</th><th>שולחן</th><th>טלפון</th><th>מייל</th><th></th></tr></thead>
+          <thead><tr><th>שם</th><th>צד</th><th>אורחים</th><th>סטטוס</th><th>שולחן</th><th>טלפון</th><th>מייל</th><th>צפי מתנה</th><th></th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -395,6 +401,18 @@
     </div>
 
     <div class="card">
+      <h3>הכנסות צפויות ממתנות מול הוצאות</h3>
+      <div class="stat-row">
+        <div class="stat-card"><div class="n" id="b-expenses">₪0</div><div class="l">סה״כ הוצאות חתונה</div></div>
+        <div class="stat-card"><div class="n" id="b-expectedIncome">₪0</div><div class="l">סה״כ הכנסה צפויה ממתנות</div></div>
+        <div class="stat-card"><div class="n" id="b-expectedBalance">₪0</div><div class="l" id="b-expectedBalance-label">מאזן צפוי</div></div>
+      </div>
+      <p style="font-size:12.5px;color:#8A8378;margin:0;">
+        הכנסה צפויה ממתנות = סכום שדה "צפי מתנה" מכל המוזמנים ברשימה. מאזן צפוי = הכנסה צפויה ממתנות פחות סה״כ הוצאות החתונה.
+      </p>
+    </div>
+
+    <div class="card">
       <h3>יעד תקציב</h3>
       <form id="budget-target-form" novalidate>
         <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px;">
@@ -420,13 +438,22 @@
 
     <div class="card">
       <h3>עלות ממוצעת לאדם</h3>
+      <form id="venue-commitment-form" novalidate>
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px;">
+          <div style="flex:1 1 200px;">
+            <label for="b-venue-commitment">התחייבות לאולם (מספר מנות/אורחים)</label>
+            <input id="b-venue-commitment" type="number" min="1" placeholder="450">
+          </div>
+          <button class="btn" id="saveVenueCommitmentBtn" type="submit">שמירה</button>
+        </div>
+      </form>
       <div class="stat-row">
-        <div class="stat-card"><div class="n" id="b-perInvited">₪0</div><div class="l">לפי כלל המוזמנים</div></div>
+        <div class="stat-card"><div class="n" id="b-perInvited">₪0</div><div class="l">לפי ההתחייבות לאולם</div></div>
         <div class="stat-card"><div class="n" id="b-perConfirmed">₪0</div><div class="l">לפי מי שאישר הגעה</div></div>
       </div>
       <p style="font-size:12.5px;color:#8A8378;margin:0;">
-        החישוב הוא העלות הכוללת (ספקים, אטרקציות ווילות התארגנות), חלקי מספר האנשים ברשימת המוזמנים (בעמודת "אורחים").
-        ככל שיותר אנשים יאשרו הגעה, המספר השני יתעדכן ויהיה מדויק יותר.
+        "לפי ההתחייבות לאולם" הוא העלות הכוללת (ספקים, אטרקציות ווילות התארגנות), חלקי ההתחייבות המספרית לאולם שהוגדרה למעלה —
+        ואינו מושפע ממספר האנשים ברשימת המוזמנים. "לפי מי שאישר הגעה" מחושב לפי מספר האנשים שאישרו הגעה בפועל ברשימת המוזמנים.
       </p>
     </div>
     <div class="card">
